@@ -25,11 +25,24 @@ public class StreamProcessorImpl implements StreamProcessor {
     @Override
     public KafkaStreams getStream() {
         var streamBuilder = new StreamsBuilder();
+
+        buildStream(streamBuilder);
+
+        return new KafkaStreams(streamBuilder.build(), kafkaConfig.getKafkaProperties());
+    }
+
+    public JsonSerde<Sum> getValueSerde() {
         var jsonSerde = new JsonSerde<Sum>();
         var jsonSerdeConfig = new HashMap<String, Object>();
         jsonSerdeConfig.put(JsonDeserializer.TRUSTED_PACKAGES, "my.examples.apache.streams.dtl");
         jsonSerdeConfig.put(JsonDeserializer.VALUE_DEFAULT_TYPE, Sum.class.getName());
         jsonSerde.configure(jsonSerdeConfig, false);
+
+        return jsonSerde;
+    }
+
+    public StreamsBuilder buildStream(StreamsBuilder streamBuilder) {
+        var jsonSerde = getValueSerde();
 
         streamBuilder.stream("inventory", Consumed.with(Serdes.String(), jsonSerde))
                 .groupByKey()
@@ -45,8 +58,8 @@ public class StreamProcessorImpl implements StreamProcessor {
                         .withKeySerde(Serdes.String())
                         .withValueSerde(jsonSerde))
                 .toStream()
-                .to("aggregated.inventory");
+                .to("aggregated-inventory");
 
-        return new KafkaStreams(streamBuilder.build(), kafkaConfig.getKafkaProperties());
+        return streamBuilder;
     }
 }

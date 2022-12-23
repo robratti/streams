@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: zookeeper
+  namespace: kafka
+spec:
+  selector:
+    matchLabels:
+      run: zk
+  template:
+    metadata:
+      labels:
+        run: zk
+    spec:
+      containers:
+        - name: zookeeper
+          image: bitnami/zookeeper
+          ports:
+            - containerPort: 2181
+              hostPort: 2181
+              name: zookeeper
+              protocol: TCP
+          env:
+            - name: ALLOW_ANONYMOUS_LOGIN
+              value: yes

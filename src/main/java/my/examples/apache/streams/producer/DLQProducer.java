@@ -24,7 +24,7 @@ public class DLQProducer implements OutboundAdapter<String, DlqObject> {
     public Mono<Void> send(@NotNull String key, @NotNull DlqObject value) {
         return Mono.fromFuture(() -> {
                     try {
-                        return dlqKafkaTemplate.sendDefault(key, value).completable();
+                        return dlqKafkaTemplate.sendDefault(key, value);
                     } catch (Exception e) {
                         log.error(format(
                                 "ALERT12001: An Error has been thrown when sending the following object %s to DLQ %s",

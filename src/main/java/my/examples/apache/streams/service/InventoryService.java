@@ -1,5 +1,6 @@
 package my.examples.apache.streams.service;
 
+import jakarta.annotation.PostConstruct;
 import my.examples.apache.streams.config.KafkaConfig;
 import my.examples.apache.streams.dtl.Sum;
 import my.examples.apache.streams.topology.StreamProcessorImpl;
@@ -9,7 +10,6 @@ import org.apache.kafka.streams.state.ReadOnlyKeyValueStore;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
-import javax.annotation.PostConstruct;
 import java.util.concurrent.CompletableFuture;
 
 @Service
