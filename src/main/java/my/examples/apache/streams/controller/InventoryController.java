@@ -9,6 +9,7 @@ import my.examples.apache.streams.service.InventoryService;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
 @RestController
@@ -31,5 +32,10 @@ public class InventoryController {
     @GetMapping(value = "/count/{name}", produces = {"application/json"})
     public Mono<Sum> getCount(@PathVariable String name) {
         return inventoryService.getCount(name);
+    }
+
+    @GetMapping(value = "/count", produces = {"application/json"})
+    public Mono<Map<String, Integer>> getAll() {
+        return inventoryService.getAll();
     }
 }

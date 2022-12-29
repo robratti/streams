@@ -10,6 +10,8 @@ import org.apache.kafka.streams.state.ReadOnlyKeyValueStore;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 @Service
@@ -33,5 +35,19 @@ public class InventoryService {
 
     public Mono<Sum> getCount(String name) {
         return Mono.fromFuture(CompletableFuture.supplyAsync(() -> inventoryStore.get(name)));
+    }
+
+    public Mono<Map<String, Integer>> getAll() {
+        return Mono.fromFuture(CompletableFuture.supplyAsync(() -> {
+            var result = inventoryStore.all();
+            var mapResult = new HashMap<String, Integer>();
+            while (result.hasNext()) {
+                var record = result.next();
+                mapResult.put(record.key, record.value.getQuantity());
+            }
+            result.close();
+
+            return mapResult;
+        }));
     }
 }

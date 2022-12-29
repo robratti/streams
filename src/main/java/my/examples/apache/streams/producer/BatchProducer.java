@@ -25,8 +25,12 @@ public class BatchProducer {
             while (size.get() > 0) {
                 try {
                     var item = ITEMS[ThreadLocalRandom.current().nextInt(0, ITEMS.length-1)];
-                    var quantity = ThreadLocalRandom.current().nextInt(-1, 100);
-
+                    var quantity = ThreadLocalRandom.current().nextInt(-100, 100);
+                    logger.info(
+                            String.format("New %s transaction of %d items of %s", quantity > 0 ? "buy" : "sell",
+                            Math.abs(quantity),
+                            item
+                    ));
                     inventoryProducer.send(item, quantity).subscribe();
                     size.decrementAndGet();
                     Thread.sleep(ThreadLocalRandom.current().nextLong(0, 1000));
