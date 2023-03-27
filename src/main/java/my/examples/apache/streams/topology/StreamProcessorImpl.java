@@ -35,8 +35,8 @@ public class StreamProcessorImpl implements StreamProcessor {
         return new KafkaStreams(streamBuilder.build(), kafkaConfig.getKafkaProperties());
     }
 
-    public JsonSerde<Sum> getValueSerde() {
-        var jsonSerde = new JsonSerde<Sum>();
+    public JsonSerde<Sum<String, Integer>> getValueSerde() {
+        var jsonSerde = new JsonSerde<Sum<String, Integer>>();
         var jsonSerdeConfig = new HashMap<String, Object>();
         jsonSerdeConfig.put(JsonDeserializer.TRUSTED_PACKAGES, "my.examples.apache.streams.dtl");
         jsonSerdeConfig.put(JsonDeserializer.VALUE_DEFAULT_TYPE, Sum.class.getName());
@@ -51,7 +51,7 @@ public class StreamProcessorImpl implements StreamProcessor {
         streamBuilder.stream("inventory", Consumed.with(Serdes.String(), jsonSerde))
                 .groupByKey()
                 .aggregate(Sum::new, (s, sum, sum2) -> {
-                    var partial = new Sum(null, 0);
+                    var partial = new Sum<String, Integer>(null, 0);
                     partial.setName(s);
                     var q1 = Optional.ofNullable(sum.getQuantity()).orElse(0);
                     var q2 = Optional.ofNullable(sum2.getQuantity()).orElse(0);
@@ -59,7 +59,7 @@ public class StreamProcessorImpl implements StreamProcessor {
                     logger.info(String.format("New event consumed, produced sub-total of %s", partial));
 
                     return partial;
-                }, Materialized.<String, Sum, KeyValueStore<Bytes, byte[]>>as("inventory-store")
+                }, Materialized.<String, Sum<String, Integer>, KeyValueStore<Bytes, byte[]>>as("inventory-store")
                         .withKeySerde(Serdes.String())
                         .withValueSerde(jsonSerde))
                 .toStream()

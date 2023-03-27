@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: broker0
+  namespace: kafka
+  labels:
+    brokers/name: broker0
+spec:
+  selector:
+    matchLabels:
+      run: b0
+  template:
+    metadata:
+      labels:
+        run: b0
+    spec:
+      volumes:
+        - name: data-storage
+          persistentVolumeClaim:
+            claimName: kafka0-pvc
+      containers:
+        - name: broker0
+          image: bitnami/kafka
+          envFrom:
+            - configMapRef:
+                name: broker0-config
+          ports:
+            - containerPort: 9091
+            - containerPort: 29091
+          volumeMounts:
+            - mountPath: /bitnami/kafka
+              name: data-storage

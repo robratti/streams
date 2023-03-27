@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: scehma-registry-config
+  namespace: kafka
+data:
+  SCHEMA_REGISTRY_HOST_NAME: "schema-registry-service"
+  SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: 'broker0-service:9091,broker1-service:9092,broker2-service:9093'
+  SCHEMA_REGISTRY_LISTENERS: 'http://0.0.0.0:8081'

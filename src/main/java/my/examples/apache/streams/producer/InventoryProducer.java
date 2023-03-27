@@ -16,11 +16,11 @@ import java.util.concurrent.CompletableFuture;
 
 @Component
 public class InventoryProducer implements OutboundAdapter<String, Integer> {
-    private final KafkaProducer<String, Sum> kafkaProducer;
+    private final KafkaProducer<String, Sum<String, Integer>> kafkaProducer;
 
     public InventoryProducer(KafkaConfig kafkaConfig) {
         var configuration = kafkaConfig.getKafkaProperties();
-        var jsonSerde = new JsonSerde<Sum>();
+        var jsonSerde = new JsonSerde<Sum<String, Integer>>();
         var jsonSerdeConfig = new HashMap<String, Object>();
         jsonSerdeConfig.put(JsonDeserializer.TRUSTED_PACKAGES, "my.examples.apache.streams.dtl");
         jsonSerde.configure(jsonSerdeConfig, false);
@@ -32,7 +32,7 @@ public class InventoryProducer implements OutboundAdapter<String, Integer> {
     @Override
     public Mono<Void> send(String key, Integer value) {
         return Mono.fromFuture(CompletableFuture.runAsync(() -> kafkaProducer.send(
-                new ProducerRecord<>("inventory", key, new Sum(key, value)))
+                new ProducerRecord<>("inventory", key, new Sum<String, Integer>(key, value)))
         )).then();
     }
 }

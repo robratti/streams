@@ -1,0 +1,22 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ./configmap/kafka0-configmap.yaml
+  - ./configmap/kafka1-configmap.yaml
+  - ./configmap/kafka2-configmap.yaml
+  - ./configmap/zookeeper-configmap.yaml
+  - ./configmap/schema-registry-configmap.yaml
+  - ./pvc/zookeeper-pvc.yaml
+  - ./pvc/kafka0-pvc.yaml
+  - ./pvc/kafka1-pvc.yaml
+  - ./pvc/kafka2-pvc.yaml
+  - ./service/zookeeper-service.yaml
+  - ./service/schema-registry-service.yaml
+  - ./service/kafka0-service.yaml
+  - ./service/kafka1-service.yaml
+  - ./service/kafka2-service.yaml
+  - ./deployment/zookeeper-deployment.yaml
+  - ./deployment/broker0-deployment.yaml
+  - ./deployment/broker1-deployment.yaml
+  - ./deployment/broker2-deployment.yaml
+  - ./deployment/schema-registry-deployment.yaml

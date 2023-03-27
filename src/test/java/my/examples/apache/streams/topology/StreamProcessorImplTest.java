@@ -30,7 +30,7 @@ class StreamProcessorImplTest {
         var streamBuilder = new StreamsBuilder();
         KafkaConfig kafkaConfig = new KafkaConfig(environment);
         var streamProcessor = new StreamProcessorImpl(kafkaConfig);
-        var stream = streamProcessor.buildStream(streamBuilder);
+        streamProcessor.buildStream(streamBuilder);
 
         //Serdes
         var keySerde = Serdes.String();
@@ -44,8 +44,8 @@ class StreamProcessorImplTest {
                 keySerde.serializer(),
                 valueSerde.serializer()
         ).pipeKeyValueList(Arrays.asList(
-                new KeyValue<>("apples", new Sum("apples", 10)),
-                new KeyValue<>("apples", new Sum("apples", 20))
+                new KeyValue<>("apples", new Sum<>("apples", 10)),
+                new KeyValue<>("apples", new Sum<>("apples", 20))
         ));
 
         var testOutputTopicForLocationInfo = testDriver.createOutputTopic(

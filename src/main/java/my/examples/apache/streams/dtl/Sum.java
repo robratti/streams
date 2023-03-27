@@ -9,7 +9,7 @@ import java.io.Serializable;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Sum implements Serializable {
+public class Sum<String, Integer> implements Serializable {
     private String name;
     private Integer quantity;
 }

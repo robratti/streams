@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: zookeeper
+  namespace: kafka
+spec:
+  selector:
+    matchLabels:
+      run: zk
+  template:
+    metadata:
+      labels:
+        run: zk
+    spec:
+      volumes:
+        - name: data-storage
+          persistentVolumeClaim:
+            claimName: zk-pvc
+      containers:
+        - name: zookeeper
+          image: bitnami/zookeeper
+          envFrom:
+            - configMapRef:
+                name: zookeeper-config
+          ports:
+            - containerPort: 2181
+              hostPort: 2181
+              name: zookeeper
+              protocol: TCP
+          volumeMounts:
+            - mountPath: /bitnami/zookeeper
+              name: data-storage
+          env:
+            - name: ALLOW_ANONYMOUS_LOGIN
+              value: yes

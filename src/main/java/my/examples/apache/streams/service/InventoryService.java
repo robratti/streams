@@ -17,7 +17,7 @@ import java.util.concurrent.CompletableFuture;
 @Service
 public class InventoryService {
     private final KafkaConfig kafkaConfig;
-    private ReadOnlyKeyValueStore<String, Sum> inventoryStore;
+    private ReadOnlyKeyValueStore<String, Sum<String, Integer>> inventoryStore;
 
     public InventoryService(KafkaConfig kafkaConfig) {
         this.kafkaConfig = kafkaConfig;
@@ -26,14 +26,15 @@ public class InventoryService {
     @PostConstruct
     private void initializeStore() {
         var stream = new StreamProcessorImpl(kafkaConfig).getStream();
-        StoreQueryParameters<ReadOnlyKeyValueStore<String, Sum>> storeQueryParameters = StoreQueryParameters.fromNameAndType("inventory-store", QueryableStoreTypes.keyValueStore());
+        StoreQueryParameters<ReadOnlyKeyValueStore<String, Sum<String, Integer>>> storeQueryParameters =
+                StoreQueryParameters.fromNameAndType("inventory-store", QueryableStoreTypes.keyValueStore());
         stream.start();
         this.inventoryStore = stream.store(
             storeQueryParameters
         );
     }
 
-    public Mono<Sum> getCount(String name) {
+    public Mono<Sum<String, Integer>> getCount(String name) {
         return Mono.fromFuture(CompletableFuture.supplyAsync(() -> inventoryStore.get(name)));
     }
 
@@ -43,7 +44,7 @@ public class InventoryService {
             var mapResult = new HashMap<String, Integer>();
             while (result.hasNext()) {
                 var record = result.next();
-                mapResult.put(record.key, record.value.getQuantity());
+                mapResult.put(record.key, (Integer) record.value.getQuantity());
             }
             result.close();
 
