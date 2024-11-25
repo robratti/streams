@@ -1,6 +1,6 @@
 package my.examples.apache.streams.config;
 
-import io.confluent.kafka.serializers.AbstractKafkaAvroSerDeConfig;
+import io.confluent.kafka.serializers.AbstractKafkaSchemaSerDeConfig;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import my.examples.apache.streams.exception.handler.DeserializationExceptionHandler;
@@ -12,8 +12,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Properties;
 
 @Slf4j
@@ -33,7 +31,7 @@ public class KafkaConfig {
                 environment.getProperty("spring.kafka.properties.application-id")
         );
         properties.put(
-                AbstractKafkaAvroSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG,
+                AbstractKafkaSchemaSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG,
                 environment.getProperty("spring.kafka.properties.schema.registry.url")
         );
         properties.put(
@@ -47,11 +45,11 @@ public class KafkaConfig {
 
         if (!Arrays.asList(environment.getActiveProfiles()).contains("local")) {
             properties.put(
-                    AbstractKafkaAvroSerDeConfig.BASIC_AUTH_CREDENTIALS_SOURCE,
+                    AbstractKafkaSchemaSerDeConfig.BASIC_AUTH_CREDENTIALS_SOURCE,
                     environment.getProperty("spring.kafka.properties.basic.auth.credentials.source")
             );
             properties.put(
-                    AbstractKafkaAvroSerDeConfig.USER_INFO_CONFIG,
+                    AbstractKafkaSchemaSerDeConfig.USER_INFO_CONFIG,
                     environment.getProperty("spring.kafka.properties.schema.registry.basic.auth.user.info")
             );
             properties.put(
@@ -69,12 +67,5 @@ public class KafkaConfig {
         }
 
         return properties;
-    }
-
-    private Map<String, Object> getConfigMap() {
-        var map = new HashMap<String, Object>();
-        this.getKafkaProperties().forEach((key, value) -> map.put((String) key, value));
-
-        return map;
     }
 }
