@@ -25,6 +25,7 @@ public class BatchProducer {
 
     public Flux<Sum<String, Integer>> produceInventory(AtomicLong size) {
         var requestArray = new ArrayList<Sum<String, Integer>>();
+        var initialSize = size.get();
         while (size.get() > 0) {
             var item = ITEMS[ThreadLocalRandom.current().nextInt(0, ITEMS.length-1)];
             var quantity = ThreadLocalRandom.current().nextInt(-100, 100);
@@ -35,7 +36,7 @@ public class BatchProducer {
         return Flux.fromIterable(requestArray)
                 .map(sum -> Tuples.of(sum, inventoryProducer.send(sum.getName(), sum.getQuantity())))
                 .flatMap(tuple -> tuple.getT2().thenReturn(tuple.getT1()))
-                .doOnComplete(() -> logger.info(String.format("Finished seeding inventory with %s items", size)))
+                .doOnComplete(() -> logger.info(String.format("Finished seeding inventory with %s items", initialSize)))
                 .delayElements(Duration.ofMillis(ThreadLocalRandom.current().nextLong(1000, 1500)));
 
     }

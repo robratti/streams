@@ -2,6 +2,7 @@ package my.examples.apache.streams.service;
 
 import jakarta.annotation.PostConstruct;
 import my.examples.apache.streams.config.KafkaConfig;
+import my.examples.apache.streams.config.properties.BatchesConfig;
 import my.examples.apache.streams.dtl.Sum;
 import my.examples.apache.streams.topology.StreamProcessorImpl;
 import org.apache.kafka.streams.StoreQueryParameters;
@@ -17,15 +18,17 @@ import java.util.concurrent.CompletableFuture;
 @Service
 public class InventoryService {
     private final KafkaConfig kafkaConfig;
+    private final BatchesConfig batchesConfig;
     private ReadOnlyKeyValueStore<String, Sum<String, Integer>> inventoryStore;
 
-    public InventoryService(KafkaConfig kafkaConfig) {
+    public InventoryService(KafkaConfig kafkaConfig, BatchesConfig batchesConfig) {
         this.kafkaConfig = kafkaConfig;
+        this.batchesConfig = batchesConfig;
     }
 
     @PostConstruct
     private void initializeStore() {
-        var stream = new StreamProcessorImpl(kafkaConfig).getStream();
+        var stream = new StreamProcessorImpl(kafkaConfig, batchesConfig, true).getStream();
         StoreQueryParameters<ReadOnlyKeyValueStore<String, Sum<String, Integer>>> storeQueryParameters =
                 StoreQueryParameters.fromNameAndType("inventory-store", QueryableStoreTypes.keyValueStore());
         stream.start();
@@ -44,7 +47,7 @@ public class InventoryService {
             var mapResult = new HashMap<String, Integer>();
             while (result.hasNext()) {
                 var record = result.next();
-                mapResult.put(record.key, (Integer) record.value.getQuantity());
+                mapResult.put(record.key, record.value.getQuantity());
             }
             result.close();
 

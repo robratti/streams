@@ -4,7 +4,7 @@
 ## Requirements
 * Docker
 * Kubernetes
-* Java Virtual Machine > 16
+* Java Virtual Machine > 19
 
 ## Run Kafka 1 Broker Cluster
 1. From the _source folder_ execute `kubectl apply -k ./kubernetes/kafka` for running the local infrastructure.
@@ -18,4 +18,6 @@
 
 Have a look at [Help.md](HELP.md) for creating topics and other settings
 
-Execute `mvn install` and then `mvn spring-boot:run`
+Execute `./bin/deploy-and-run.sh` from the app root folder for running the app locally. 
+
+Alternatively, if you like to run it on a Kubernetes cluster, you can build the Dockerfile in `./kubernetes` folder. 

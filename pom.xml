@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.0.0</version>
+		<version>3.4.0</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>my.examples.apache</groupId>
@@ -14,11 +14,11 @@
 	<name>streams</name>
 	<description>Apache Streams</description>
 	<properties>
-		<java.version>17</java.version>
+		<java.version>21</java.version>
 		<spring-cloud-version>3.2.2</spring-cloud-version>
-		<kafka.avro.version>5.3.0</kafka.avro.version>
-		<jacoco.version>0.8.7</jacoco.version>
-		<kafka-version>3.4.0</kafka-version>
+		<kafka.avro.version>7.5.0</kafka.avro.version>
+		<jacoco.version>0.8.12</jacoco.version>
+		<kafka-version>3.9.0</kafka-version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -42,7 +42,7 @@
 		<dependency>
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
-			<version>31.1-jre</version>
+			<version>33.3.1-jre</version>
 		</dependency>
 		<!-- Kafka -->
 		<dependency>
@@ -81,7 +81,7 @@
 		<dependency>
 			<groupId>org.apache.avro</groupId>
 			<artifactId>avro</artifactId>
-			<version>1.11.0</version>
+			<version>1.12.0</version>
 		</dependency>
 		<dependency>
 			<groupId>io.confluent</groupId>
@@ -102,7 +102,7 @@
 		<dependency>
 			<groupId>io.confluent</groupId>
 			<artifactId>kafka-streams-avro-serde</artifactId>
-			<version>5.5.1</version>
+			<version>${kafka.avro.version}</version>
 			<exclusions>
 				<exclusion>
 					<groupId>org.slf4j</groupId>
@@ -127,7 +127,7 @@
 		<dependency>
 			<groupId>com.squareup.okhttp3</groupId>
 			<artifactId>okhttp</artifactId>
-			<version>4.9.3</version>
+			<version>4.12.0</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
@@ -191,20 +191,27 @@
 		</dependency>
 		<dependency>
 			<groupId>org.apache.kafka</groupId>
-			<artifactId>kafka_2.13</artifactId>
-			<version>3.3.1</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.kafka</groupId>
 			<artifactId>kafka-streams-test-utils</artifactId>
 			<version>${kafka-version}</version>
 			<scope>test</scope>
 		</dependency>
 		<!-- Units -->
 	</dependencies>
+	<repositories>
+		<repository>
+			<id>confluent</id>
+			<name>Confluent Maven Repository</name>
+			<url>https://packages.confluent.io/maven/</url>
+		</repository>
+	</repositories>
 
 	<build>
+		<resources>
+			<resource>
+				<directory>src/main/resources</directory>
+				<filtering>false</filtering>
+			</resource>
+		</resources>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -269,5 +276,4 @@
 			</plugin>
 		</plugins>
 	</build>
-
 </project>

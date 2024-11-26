@@ -3,6 +3,7 @@ package my.examples.apache.streams.topology;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import my.examples.apache.streams.config.KafkaConfig;
+import my.examples.apache.streams.config.properties.BatchesConfig;
 import my.examples.apache.streams.dtl.Sum;
 import my.examples.apache.streams.producer.BatchProducer;
 import org.apache.kafka.common.serialization.Serdes;
@@ -11,6 +12,7 @@ import org.apache.kafka.streams.KafkaStreams;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.kstream.Consumed;
 import org.apache.kafka.streams.kstream.Materialized;
+import org.apache.kafka.streams.kstream.Produced;
 import org.apache.kafka.streams.state.KeyValueStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,6 +26,8 @@ import java.util.Optional;
 @AllArgsConstructor
 public class StreamProcessorImpl implements StreamProcessor {
     private final KafkaConfig kafkaConfig;
+    private final BatchesConfig batches;
+    private final boolean enableRandomDelay;
     private final Logger logger = LoggerFactory.getLogger(BatchProducer.class.getName());
 
     @Override
@@ -48,6 +52,7 @@ public class StreamProcessorImpl implements StreamProcessor {
     public StreamsBuilder buildStream(StreamsBuilder streamBuilder) {
         var jsonSerde = getValueSerde();
 
+        // 1. Aggregate inventory
         streamBuilder.stream("inventory", Consumed.with(Serdes.String(), jsonSerde))
                 .groupByKey()
                 .aggregate(Sum::new, (s, sum, sum2) -> {
@@ -65,9 +70,36 @@ public class StreamProcessorImpl implements StreamProcessor {
                 .toStream()
                 .to("aggregated-inventory");
 
+        // 2. Generate orders for negative inventory
         streamBuilder.stream("aggregated-inventory", Consumed.with(Serdes.String(), jsonSerde))
-                .filter((key, value) -> value.getQuantity() < 100)
-                .to("order");
+                .filter((key, value) -> value.getQuantity() < 0)
+                .mapValues(value -> {
+                    String itemName = value.getName();
+                    Integer requiredBatch = batches.getItems().getOrDefault(itemName, 1);
+                    int deficit = Math.abs(value.getQuantity());
+                    int minimumOrderQuantity = ((deficit + requiredBatch - 1) / requiredBatch) * requiredBatch;
+                    var order = new Sum<String, Integer>();
+                    order.setName(itemName);
+                    order.setQuantity(minimumOrderQuantity);
+                    logger.info(String.format("Shortage of %s detected, creating order: %s", itemName, order));
+                    return order;
+                })
+                .to("order", Produced.with(Serdes.String(), jsonSerde));
+
+        streamBuilder.stream("order", Consumed.with(Serdes.String(), jsonSerde))
+                .peek((key, value) -> {
+                    if (enableRandomDelay) {
+                        try {
+                            // Simulate random processing delay (100ms to 500ms)
+                            long delay = (long) (100 + Math.random() * 400);
+                            Thread.sleep(delay);
+                        } catch (InterruptedException e) {
+                            logger.error("Error during simulated delay", e);
+                            Thread.currentThread().interrupt();
+                        }
+                    }
+                })
+                .to("inventory", Produced.with(Serdes.String(), jsonSerde));
 
         return streamBuilder;
     }

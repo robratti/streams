@@ -19,6 +19,11 @@ spec:
             - containerPort: 9092
               hostPort: 9092
               name: broker
+          readinessProbe:
+            tcpSocket:
+              port: 9092
+            initialDelaySeconds: 10
+            periodSeconds: 5
           env:
             - name: ALLOW_PLAINTEXT_LISTENER
               value: 'yes'
