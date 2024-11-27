@@ -29,5 +29,5 @@ spec:
             - name: KAFKA_CFG_LISTENERS
               value: PLAINTEXT://:9092
             - name: KAFKA_CFG_ADVERTISED_LISTENERS
-              value: PLAINTEXT://broker-service:9092
+              value: PLAINTEXT://broker-service.kafka.svc.cluster.local:9092
   replicas: 1

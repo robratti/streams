@@ -1,3 +1,18 @@
+# Networking
+
+## Name Resolution
+Kafka advertises its PLAINTEXT listener as `PLAINTEXT://broker-service.kafka.svc.cluster.local:9092` and Schema Registry
+advertises itself with `http://schema-registry-service.kafka.svc.cluster.local:8081`. If you only forward ports without modifying
+/etc/hosts, the clients may fail to connect to the Kafka broker or Schema Registry due to unresolved hostnames.
+
+add these 2 entries to `/etc/hosts` if you want to forward connection to localhost:
+
+```agsl
+127.0.0.1       broker-service.kafka.svc.cluster.local
+127.0.0.1       schema-registry-service.kafka.svc.cluster.local
+```
+
+
 # Kafka Streams
 
 ## Create Topics

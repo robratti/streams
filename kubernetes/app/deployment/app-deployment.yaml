@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app
+spec:
+  selector:
+    matchLabels:
+      app: app
+  template:
+    metadata:
+      labels:
+        app: app
+    spec:
+      initContainers:
+        - name: wait-for-kafka
+          image: busybox
+          env:
+            - name: BROKER_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: BROKER_URL
+          command:
+            - sh
+            - -c
+            - |
+              until nc -z ${BROKER_URL%%:*} ${BROKER_URL##*:}; do
+                echo waiting for kafka at ${BROKER_URL};
+                sleep 5;
+              done
+      containers:
+        - name: app
+          image: stream-table
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: cluster
+            - name: BROKER_URL
+              valueFrom:
+                configMapKeyRef:
+                  key: BROKER_URL
+                  name: app-config
+            - name: SCHEMA_REGISTRY_URL
+              valueFrom:
+                configMapKeyRef:
+                  key: SCHEMA_REGISTRY_URL
+                  name: app-config
+          ports:
+            - containerPort: 8080

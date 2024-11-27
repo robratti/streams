@@ -45,7 +45,7 @@ public class KafkaConfig {
                 ProductionExceptionHandler.class
         );
 
-        if (!Arrays.asList(environment.getActiveProfiles()).contains("local")) {
+        if (Arrays.asList(environment.getActiveProfiles()).contains("production")) {
             properties.put(
                     AbstractKafkaAvroSerDeConfig.BASIC_AUTH_CREDENTIALS_SOURCE,
                     environment.getProperty("spring.kafka.properties.basic.auth.credentials.source")
